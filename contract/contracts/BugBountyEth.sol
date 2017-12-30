@@ -20,3 +20,17 @@ contract Question {
   }
 
 }
+
+contract QuestionContractManager {
+  
+  address[] questions;
+  
+  function QuestionContractManager() {
+    //constructor
+  }
+  
+  function SubmitQuestion(string questionText, byte[512][] tags, uint submittedTime, uint bountyMinValue,
+      uint bountyMaxValue, uint bountyTimeToMaxValue, uint tip) public returns(address) {
+  
+  }
+}
