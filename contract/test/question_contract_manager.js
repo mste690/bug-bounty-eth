@@ -12,7 +12,6 @@ contract('QuestionContractManager', (accounts) => {
     try {
       await transaction;
     } catch (e) {
-      console.log(e);
       return true;
     }
     assert.fail('Tx did not fail', 'Tx should fail', 'Expected transaction to fail, but it did not');
