@@ -215,7 +215,7 @@ contract('QuestionContractManager', function(accounts) {
 
   it("should have no questions for new contract manager", async function() {
     let new_question_contract_manager = await QuestionContractManager.new();
-    assert.isEmpty(new_question_contract_manager.questions, 'New manager should have no questions');
+    assert.equal(new_question_contract_manager.questions.length, 0, 'New manager should have no questions');
   });
 
   it("should have single address in new manager after submit", async function() {
