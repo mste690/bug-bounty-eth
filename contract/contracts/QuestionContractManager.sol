@@ -8,7 +8,8 @@ contract QuestionContractManager {
     //constructor
   }
   
-  function SubmitQuestion(string questionText, byte[512][] tags, uint submittedTime, uint bountyMinValue, uint bountyMaxValue, uint bountyTimeToMaxValue, uint tip) public returns(address) {
+  function SubmitQuestion(string questionText, bytes32[] tags, uint submittedTime, uint bountyMinValue, uint bountyMaxValue, uint 
+bountyTimeToMaxValue, uint tip) public payable returns(address) {
 	//require(1 == 0);  
   }
 }
