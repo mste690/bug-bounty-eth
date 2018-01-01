@@ -162,7 +162,7 @@ contract('QuestionContractManager', function(accounts) {
 
   it("should return address to question contract", async function() {
     var question_contract_manager = await QuestionContractManager.deployed();
-    var result = await question_contract_manager.SubmitQuestion("questiontext", ["tag1", "tag2"], 2017, 500, 1000, 28, 20);
+    var result = await question_contract_manager.SubmitQuestion("questiontext", ["tag1", "tag2"], 2017, 500, 1000, 28, 20, {value: 1020});
     //check the result is a valid ethereum address
     assert.isOk(web3.isAddress(result), 'SubmitQuestion did not return valid ethereum address');
     var questionContract = Question.at(result);
@@ -172,7 +172,7 @@ contract('QuestionContractManager', function(accounts) {
 
   it("should create Question contract with correct inputs", async function() {
     var question_contract_manager = await QuestionContractManager.deployed();
-    var result = await question_contract_manager.SubmitQuestion("questiontext", ["tag1", "tag2"], 2017, 500, 1000, 28, 20);
+    var result = await question_contract_manager.SubmitQuestion("questiontext", ["tag1", "tag2"], 2017, 500, 1000, 28, 20, {value: 1020});
     var questionContract = Question.at(result);
     //check that the instantiated contract has a questiontext field that matches the input
     assert.equal(questionContract.questiontext, "questiontext");
