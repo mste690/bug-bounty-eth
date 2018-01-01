@@ -179,7 +179,7 @@ contract('QuestionContractManager', (accounts) => {
 
     it('should have correct question data at stored address', async () =>{
       let new_question_contract_manager = await QuestionContractManager.new();
-      let result = await new_question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value, from: accounts[0]});
+      await new_question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value, from: accounts[0]});
       //check that stored address is in questions
       let questionContract = Question.at(new_question_contract_manager.questions[0]);
       //check that the instantiated contract has a questiontext field that matches the input
