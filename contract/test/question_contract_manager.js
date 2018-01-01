@@ -12,31 +12,44 @@ contract('QuestionContractManager', (accounts) => {
     try {
       await transaction;
     } catch (e) {
+      console.log(e);
       return true;
     }
     assert.fail('Tx did not fail', 'Tx should fail', 'Expected transaction to fail, but it did not');
   }
 
   describe('SubmitQuestion', () => {
+    const defVals = {
+      questionText: 'questiontext',
+      tags: [ 'tag1', 'tag2' ],
+      submittedTime: 1514786491,
+      bountyMinValue: 500,
+      bountyMaxValue: 1000,
+      bountyTimeToMaxValue: 24 * 60 * 60,
+      tip: 20,
+      value: 1020,
+      submitQuestionPromise:() => question_contract_manager.SubmitQuestion(questionText, tags, submittedTime, bountyMinValue, bountyMaxValue, bountyTimeToMaxValue, tip, { value })
+    }
+
     it('should not fail with valid input', async () => {
-      var result = await question_contract_manager.SubmitQuestion('questiontext', ['tag1', 'tag2'], 2017, 500, 1000, 28, 20, {value: 1020});
+      var result = await defVals.submitQuestionPromise;
     });
 
     it('should fail if questionText is an empty string', async () =>{
-      await expectTransactionToFail(question_contract_manager.SubmitQuestion('', ['tag1', 'tag2'], 2017, 500, 1000, 28, 20, {value: 1020}))
+      await expectTransactionToFail(question_contract_manager.SubmitQuestion('', defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value}))
     });
 
     it('should fail if questionText is longer than the maximum character length', async () =>{
-      const MAX_CHARS = 500;
+      const MAX_CHARS = defVals.bountyMinValue;
       let longString = '';
       for (let i = 0; i <= MAX_CHARS; i++) {
         longString += 'a';
       }
-      await expectTransactionToFail(question_contract_manager.SubmitQuestion(longString, ['tag1', 'tag2'], 2017, 500, 1000, 28, 20, {value: 1020}));
+      await expectTransactionToFail(question_contract_manager.SubmitQuestion(longString, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value}));
     });
 
     it('should fail if the list of tags contains an empty string', async () =>{
-      await expectTransactionToFail(question_contract_manager.SubmitQuestion('questiontext', ['tag1', ''], 2017, 500, 1000, 28, 20, {value: 1020}));
+      await expectTransactionToFail(question_contract_manager.SubmitQuestion(defVals.questionText, ['tag1', ''], defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value}));
     });
 
     it('should fail if the list of tags contains more than the maximum number of allowed tags', async () =>{
@@ -46,98 +59,94 @@ contract('QuestionContractManager', (accounts) => {
         tags.push(`tag ${i}`);
       }
 
-      await expectTransactionToFail(question_contract_manager.SubmitQuestion('questiontext', tags, 2017, 500, 1000, 28, 20, {value: 1020}));
+      await expectTransactionToFail(question_contract_manager.SubmitQuestion(defVals.questionText, tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value}));
     });
 
     it('should fail if the list of tags contains duplicate tags', async () =>{
-      await expectTransactionToFail(question_contract_manager.SubmitQuestion('questiontext', ['tag1', 'tag1'], 2017, 500, 1000, 28, 20, {value: 1020}));
+      await expectTransactionToFail(question_contract_manager.SubmitQuestion(defVals.questionText, ['tag1', 'tag1'], defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value}));
     });
 
     it('should fail if the bountyMinValue is 0', async () =>{
-      await expectTransactionToFail(question_contract_manager.SubmitQuestion('questiontext', ['tag1', 'tag2'], 2017, 0, 1000, 28, 20, {value: 1020}));
+      await expectTransactionToFail(question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, 0, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value}));
     });
 
     it('should fail if the bountyMinValue is negative', async () =>{
-      await expectTransactionToFail(question_contract_manager.SubmitQuestion('questiontext', ['tag1', 'tag2'], 2017, -1, 1000, 28, 20, {value: 1020}));
+      await expectTransactionToFail(question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, - 1, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value}));
     });
 
     it('should fail if the bountyMinValue is greater than bountyMaxValue', async () =>{
-      await expectTransactionToFail(question_contract_manager.SubmitQuestion('questiontext', ['tag1', 'tag2'], 2017, 1001, 1000, 28, 20, {value: 1020}));
+      await expectTransactionToFail(question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMaxValue + 1, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value}));
     });
 
     it('should fail if the bountyMinValue is equal to bountyMaxValue', async () =>{
-      await expectTransactionToFail(question_contract_manager.SubmitQuestion('questiontext', ['tag1', 'tag2'], 2017, 1000, 1000, 28, 20, {value: 1020}));
+      await expectTransactionToFail(question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMaxValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value}));
     });
 
     it('should fail if the value given to the contract is less than to the bountyMaxValue plus the tip', async () =>{
-      await expectTransactionToFail(question_contract_manager.SubmitQuestion('questiontext', ['tag1', 'tag2'], 2017, 500, 1000, 28, 20, {value: 1000}));
+      await expectTransactionToFail(question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.bountyMaxValue + defVals.tip - 1}));
     });
 
     it('should fail if the value given to the contract is greater than to the bountyMaxValue plus the tip', async () =>{
-      await expectTransactionToFail(question_contract_manager.SubmitQuestion('questiontext', ['tag1', 'tag2'], 2017, 500, 1000, 28, 20, {value: 1030}));
+      await expectTransactionToFail(question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.bountyMaxValue + defVals.tip + 1}));
     });
 
     it('should fail if the bounty timeToMaxValue is negative', async () =>{
-      await expectTransactionToFail(question_contract_manager.SubmitQuestion('questiontext', ['tag1', 'tag2'], 2017, 500, 1000, -5, 20, {value: 1020}));
+      await expectTransactionToFail(question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, -5, defVals.tip, {value: defVals.value}));
     });
 
-    it('should fail if the bounty timeToMaxValue is greater than 28 days', async () =>{
+    it('should fail if the bounty timeToMaxValue is greater than bountyTimeToMaxValue days', async () =>{
       
-      const LONG_TIME = (28 * 24 * 60 * 60) + 1
-      await expectTransactionToFail(question_contract_manager.SubmitQuestion('questiontext', ['tag1', 'tag2'], 2017, 500, 1000, LONG_TIME, 20, {value: 1020}));
+      const LONG_TIME = (defVals.bountyTimeToMaxValue * 24 * 60 * 60) + 1
+      await expectTransactionToFail(question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, LONG_TIME, defVals.tip, {value: defVals.value}));
     });
 
     it('should fail if the bounty tip is less than 1% of the bounty max value', async () =>{
-      await expectTransactionToFail(question_contract_manager.SubmitQuestion('questiontext', ['tag1', 'tag2'], 2017, 500, 1000, 28, 19, {value: 1019}));
+      await expectTransactionToFail(question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.bountyTimeToMaxValue/100 - 1, {value: defVals.bountyMaxValue + defVals.bountyTimeToMaxValue/100 - 1}));
     });
 
     it('should return address to question contract', async () =>{
-      var result = await question_contract_manager.SubmitQuestion('questiontext', ['tag1', 'tag2'], 2017, 500, 1000, 28, 20, {value: 1020});
+      var result = await defVals.submitQuestionPromise;
       //check the result is a valid ethereum address
       assert.isOk(web3.isAddress(result), 'SubmitQuestion did not return valid ethereum address');
       var questionContract = Question.at(result);
       //check that the instantiated contract has a questiontext field that matches the input
-      assert.equal(questionContract.questiontext, 'questiontext');
+      assert.equal(questionContract.questiontext, defVals.questionText);
     });
 
     it('should create Question contract with correct inputs', async () =>{
-      var question_contract_manager = await QuestionContractManager.deployed();
-      var result = await question_contract_manager.SubmitQuestion('questiontext', ['tag1', 'tag2'], 2017, 500, 1000, 28, 20, {value: 1020});
+      var result = await defVals.submitQuestionPromise;
       var questionContract = Question.at(result);
       //check that the instantiated contract has a questiontext field that matches the input
-      assert.equal(questionContract.questiontext, 'questiontext');
-      assert.equal(questionContract.tags, ['tag1', 'tag2']);
-      assert.equal(questionContract.submittedTime, 2017);
-      assert.equal(questionContract.bounty.minValue, 500);
-      assert.equal(questionContract.bounty.maxValue, 1000);
-      assert.equal(questionContract.bounty.timeToMaxValue, 28);
+      assert.equal(questionContract.questiontext, defVals.questionText);
+      assert.equal(questionContract.tags, defVals.tags);
+      assert.equal(questionContract.submittedTime, defVals.submittedTime);
+      assert.equal(questionContract.bounty.minValue, defVals.bountyMinValue);
+      assert.equal(questionContract.bounty.maxValue, defVals.bountyMaxValue);
+      assert.equal(questionContract.bounty.timeToMaxValue, defVals.bountyTimeToMaxValue);
     });
 
     it('should have Question author as message sender', async () =>{
-      var question_contract_manager = await QuestionContractManager.deployed();
-      var result = await question_contract_manager.SubmitQuestion('questiontext', ['tag1', 'tag2'], 2017, 500, 1000, 28, 20, {value: 1020, from: accounts[0]});
+      var result = await question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value, from: accounts[0]});
       var questionContract = Question.at(result);
       //check that the author is the message sender
       assert.equal(questionContract.author, accounts[0]);
     });
 
     it('should have same Question contract balance as max bounty', async () =>{
-      var question_contract_manager = await QuestionContractManager.deployed();
-      var result = await question_contract_manager.SubmitQuestion('questiontext', ['tag1', 'tag2'], 2017, 500, 1000, 28, 20, {value: 1020, from: accounts[0]});
+      var result = await defVals.submitQuestionPromise;
       //check that the result contract balance is bounty maxValue
-      assert.equal(web3.eth.getBalance(result), 1000);
+      assert.equal(web3.eth.getBalance(result), defVals.bountyMaxValue);
     });
 
     it('should have Question isClosed as false', async () =>{
-      var question_contract_manager = await QuestionContractManager.deployed();
-      var result = await question_contract_manager.SubmitQuestion('questiontext', ['tag1', 'tag2'], 2017, 500, 1000, 28, 20, {value: 1020, from: accounts[0]});
+      var result = await defVals.submitQuestionPromise;
       var questionContract = Question.at(result);
       //check that the author is the message sender
       assert.isFalse(questionContract.isClosed, 'Question isClosed should be false on submission');
     });
 
     it('should have Question address in managers questions array', async () =>{
-      var result = await question_contract_manager.SubmitQuestion('questiontext', ['tag1', 'tag2'], 2017, 500, 1000, 28, 20, {value: 1020, from: accounts[0]});
+      var result = await defVals.submitQuestionPromise
       //check that result address is in questions
       assert.isOk(question_contract_manager.questions.includes(result), 'questions array should contain new question address');
     });
@@ -149,7 +158,7 @@ contract('QuestionContractManager', (accounts) => {
 
     it('should have single address in new manager after submit', async () =>{
       let new_question_contract_manager = await QuestionContractManager.new();
-      let result = await new_question_contract_manager.SubmitQuestion('questiontext', ['tag1', 'tag2'], 2017, 500, 1000, 28, 20, {value: 1020, from: accounts[0]});
+      let result = await new_question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value, from: accounts[0]});
       //check that result address is in questions
       assert.isOk(new_question_contract_manager.questions.includes(result), 'questions array should contain new question address');
       assert.lengthOf(new_question_contract_manager.questions, 1, 'questions should contain 1 address');
@@ -157,12 +166,12 @@ contract('QuestionContractManager', (accounts) => {
 
     it('should have two addresses in new manager after two submissions', async () =>{
       let new_question_contract_manager = await QuestionContractManager.new();
-      let result = await new_question_contract_manager.SubmitQuestion('questiontext', ['tag1', 'tag2'], 2017, 500, 1000, 28, 20, {value: 1020, from: accounts[0]});
+      let result = await new_question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value, from: accounts[0]});
       //check that result address is in questions
       assert.isOk(new_question_contract_manager.questions.includes(result), 'questions array should contain new question address');
       assert.lengthOf(new_question_contract_manager.questions, 1, 'questions should contain 1 address');
 
-      let result2 = await new_question_contract_manager.SubmitQuestion('questiontext', ['tag1', 'tag2'], 2017, 500, 1000, 28, 20, {value: 1020, from: accounts[0]});
+      let result2 = await new_question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value, from: accounts[0]});
       //check that second result address is in questions
       assert.isOk(new_question_contract_manager.questions.includes(result2), 'questions array should contain new question address');
       assert.lengthOf(new_question_contract_manager.questions, 2, 'questions should contain 2 addresses');
@@ -170,16 +179,16 @@ contract('QuestionContractManager', (accounts) => {
 
     it('should have correct question data at stored address', async () =>{
       let new_question_contract_manager = await QuestionContractManager.new();
-      let result = await new_question_contract_manager.SubmitQuestion('questiontext', ['tag1', 'tag2'], 2017, 500, 1000, 28, 20, {value: 1020, from: accounts[0]});
+      let result = await new_question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value, from: accounts[0]});
       //check that stored address is in questions
       let questionContract = Question.at(new_question_contract_manager.questions[0]);
       //check that the instantiated contract has a questiontext field that matches the input
-      assert.equal(questionContract.questiontext, 'questiontext');
-      assert.equal(questionContract.tags, ['tag1', 'tag2']);
-      assert.equal(questionContract.submittedTime, 2017);
-      assert.equal(questionContract.bounty.minValue, 500);
-      assert.equal(questionContract.bounty.maxValue, 1000);
-      assert.equal(questionContract.bounty.timeToMaxValue, 28);
+      assert.equal(questionContract.questiontext, defVals.questionText);
+      assert.equal(questionContract.tags, defVals.tags);
+      assert.equal(questionContract.submittedTime, defVals.submittedTime);
+      assert.equal(questionContract.bounty.minValue, defVals.bountyMinValue);
+      assert.equal(questionContract.bounty.maxValue, defVals.bountyMaxValue);
+      assert.equal(questionContract.bounty.timeToMaxValue, defVals.bountyTimeToMaxValue);
     });
   }); 
 });
