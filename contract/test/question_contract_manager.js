@@ -1,5 +1,5 @@
-var QuestionContractManager = artifacts.require('./QuestionContractManager.sol');
-var Question = artifacts.require('./Question.sol');
+const QuestionContractManager = artifacts.require('./QuestionContractManager.sol');
+const Question = artifacts.require('./Question.sol');
 
 contract('QuestionContractManager', (accounts) => {
   let question_contract_manager;
@@ -31,7 +31,7 @@ contract('QuestionContractManager', (accounts) => {
     }
 
     it('should not fail with valid input', async () => {
-      var result = await defVals.submitQuestionPromise;
+      const result = await defVals.submitQuestionPromise;
     });
 
     it('should fail if questionText is an empty string', async () =>{
@@ -104,17 +104,17 @@ contract('QuestionContractManager', (accounts) => {
     });
 
     it('should return address to question contract', async () =>{
-      var result = await defVals.submitQuestionPromise;
+      const result = await defVals.submitQuestionPromise;
       //check the result is a valid ethereum address
       assert.isOk(web3.isAddress(result), 'SubmitQuestion did not return valid ethereum address');
-      var questionContract = Question.at(result);
+      const questionContract = Question.at(result);
       //check that the instantiated contract has a questiontext field that matches the input
       assert.equal(questionContract.questiontext, defVals.questionText);
     });
 
     it('should create Question contract with correct inputs', async () =>{
-      var result = await defVals.submitQuestionPromise;
-      var questionContract = Question.at(result);
+      const result = await defVals.submitQuestionPromise;
+      const questionContract = Question.at(result);
       //check that the instantiated contract has a questiontext field that matches the input
       assert.equal(questionContract.questiontext, defVals.questionText);
       assert.equal(questionContract.tags, defVals.tags);
@@ -125,62 +125,62 @@ contract('QuestionContractManager', (accounts) => {
     });
 
     it('should have Question author as message sender', async () =>{
-      var result = await question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value, from: accounts[0]});
-      var questionContract = Question.at(result);
+      const result = await question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value, from: accounts[0]});
+      const questionContract = Question.at(result);
       //check that the author is the message sender
       assert.equal(questionContract.author, accounts[0]);
     });
 
     it('should have same Question contract balance as max bounty', async () =>{
-      var result = await defVals.submitQuestionPromise;
+      const result = await defVals.submitQuestionPromise;
       //check that the result contract balance is bounty maxValue
       assert.equal(web3.eth.getBalance(result), defVals.bountyMaxValue);
     });
 
     it('should have Question isClosed as false', async () =>{
-      var result = await defVals.submitQuestionPromise;
-      var questionContract = Question.at(result);
+      const result = await defVals.submitQuestionPromise;
+      const questionContract = Question.at(result);
       //check that the author is the message sender
       assert.isFalse(questionContract.isClosed, 'Question isClosed should be false on submission');
     });
 
     it('should have Question address in managers questions array', async () =>{
-      var result = await defVals.submitQuestionPromise
+      const result = await defVals.submitQuestionPromise
       //check that result address is in questions
       assert.isOk(question_contract_manager.questions.includes(result), 'questions array should contain new question address');
     });
 
     it('should have no questions for new contract manager', async () =>{
-      let new_question_contract_manager = await QuestionContractManager.new();
+      const new_question_contract_manager = await QuestionContractManager.new();
       assert.equal(new_question_contract_manager.questions.length, 0, 'New manager should have no questions');
     });
 
     it('should have single address in new manager after submit', async () =>{
-      let new_question_contract_manager = await QuestionContractManager.new();
-      let result = await new_question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value, from: accounts[0]});
+      const new_question_contract_manager = await QuestionContractManager.new();
+      const result = await new_question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value, from: accounts[0]});
       //check that result address is in questions
       assert.isOk(new_question_contract_manager.questions.includes(result), 'questions array should contain new question address');
       assert.lengthOf(new_question_contract_manager.questions, 1, 'questions should contain 1 address');
     });
 
     it('should have two addresses in new manager after two submissions', async () =>{
-      let new_question_contract_manager = await QuestionContractManager.new();
-      let result = await new_question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value, from: accounts[0]});
+      const new_question_contract_manager = await QuestionContractManager.new();
+      const result = await new_question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value, from: accounts[0]});
       //check that result address is in questions
       assert.isOk(new_question_contract_manager.questions.includes(result), 'questions array should contain new question address');
       assert.lengthOf(new_question_contract_manager.questions, 1, 'questions should contain 1 address');
 
-      let result2 = await new_question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value, from: accounts[0]});
+      const result2 = await new_question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value, from: accounts[0]});
       //check that second result address is in questions
       assert.isOk(new_question_contract_manager.questions.includes(result2), 'questions array should contain new question address');
       assert.lengthOf(new_question_contract_manager.questions, 2, 'questions should contain 2 addresses');
     });
 
     it('should have correct question data at stored address', async () =>{
-      let new_question_contract_manager = await QuestionContractManager.new();
+      const new_question_contract_manager = await QuestionContractManager.new();
       await new_question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value, from: accounts[0]});
       //check that stored address is in questions
-      let questionContract = Question.at(new_question_contract_manager.questions[0]);
+      const questionContract = Question.at(new_question_contract_manager.questions[0]);
       //check that the instantiated contract has a questiontext field that matches the input
       assert.equal(questionContract.questiontext, defVals.questionText);
       assert.equal(questionContract.tags, defVals.tags);
