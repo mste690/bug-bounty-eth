@@ -1,10 +1,9 @@
 var QuestionContractManager = artifacts.require('./QuestionContractManager.sol');
 
 contract('QuestionContractManager', function(accounts) {
-  it("should assert true", async function() {
+  it("should not fail with valid input", async function() {
     var question_contract_manager = await QuestionContractManager.deployed();
     var result = await question_contract_manager.SubmitQuestion("questiontext", ["tag1", "tag2"], 2017, 500, 1000, 28, 20, {value: 1020});
-    assert.equal(result, "asdsadsa");
   });
   
   it("should fail if questionText is an empty string", async function() {
