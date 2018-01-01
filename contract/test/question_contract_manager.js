@@ -182,4 +182,13 @@ contract('QuestionContractManager', function(accounts) {
     assert.equal(questionContract.bounty.maxValue, 1000);
     assert.equal(questionContract.bounty.timeToMaxValue, 28);
   });
+
+  it("should have Question author as message sender", async function() {
+    var question_contract_manager = await QuestionContractManager.deployed();
+    var result = await question_contract_manager.SubmitQuestion("questiontext", ["tag1", "tag2"], 2017, 500, 1000, 28, 20, {value: 1020, from: accounts[0]});
+    var questionContract = Question.at(result);
+    //check that the author is the message sender
+    assert.equal(questionContract.author, accounts[0]);
+
+  });
 });
