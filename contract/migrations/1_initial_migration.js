@@ -1,7 +1,7 @@
 var Migrations = artifacts.require("./Migrations.sol");
-var HelloWorld = artifacts.require("./HelloWorld.sol");
+var QuestionContractManager = artifacts.require("./QuestionContractManager.sol");
 
 module.exports = function(deployer) {
   deployer.deploy(Migrations);
-  deployer.deploy(HelloWorld);
+  deployer.deploy(QuestionContractManager);
 };
