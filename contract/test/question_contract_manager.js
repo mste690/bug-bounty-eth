@@ -39,7 +39,7 @@ contract('QuestionContractManager', (accounts) => {
     });
 
     it('should fail if questionText is longer than the maximum character length', async () =>{
-      const MAX_CHARS = defVals.bountyMinValue;
+      const MAX_CHARS = 2048;
       let longString = '';
       for (let i = 0; i <= MAX_CHARS; i++) {
         longString += 'a';
@@ -100,7 +100,7 @@ contract('QuestionContractManager', (accounts) => {
     });
 
     it('should fail if the bounty tip is less than 1% of the bounty max value', async () =>{
-      await expectTransactionToFail(question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.bountyTimeToMaxValue/100 - 1, {value: defVals.bountyMaxValue + defVals.bountyTimeToMaxValue/100 - 1}));
+      await expectTransactionToFail(question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.bountyMaxValue/100 - 1, {value: defVals.bountyMaxValue + defVals.bountyTimeToMaxValue/100 - 1}));
     });
 
     it('should return address to question contract', async () =>{
