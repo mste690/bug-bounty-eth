@@ -10,6 +10,10 @@ contract QuestionContractManager {
 
   address[] internal questions;
   
+  event QuestionSubmitted (
+    address questionAddress
+  );
+
   function QuestionContractManager() {
     //constructor
   }
@@ -45,8 +49,16 @@ contract QuestionContractManager {
     require(bountyTimeToMaxValue <= 28 days);
     require(tip >= bountyMaxValue/100);
 
-    address newQuestionContract = new Question();
+    address newQuestionContract = new Question(
+        msg.sender,
+        questionText,
+        tags,
+        submittedTime,
+        bountyMinValue,
+        bountyMaxValue,
+        bountyTimeToMaxValue);
     questions.push(newQuestionContract);
+    QuestionSubmitted(newQuestionContract);
     return newQuestionContract;
   }
 }
