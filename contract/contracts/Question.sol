@@ -2,12 +2,12 @@ pragma solidity ^0.4.4;
 
 contract Question {
 
-  address author;
-  string questionText;
-  bytes32[] tags;
-  Bounty bounty;
-  uint submittedTime;
-  bool isClosed;
+  address public author;
+  string public questionText;
+  bytes32[] public tags;
+  Bounty public bounty;
+  uint public submittedTime;
+  bool public isClosed;
 
   struct Bounty {
     uint minValue;
