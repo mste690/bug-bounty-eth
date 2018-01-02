@@ -15,6 +15,11 @@ contract Question {
     uint timeToMaxValue;
   }
 
+  //Getter for tags
+  function getTags() public returns (bytes32[]) {
+    return tags;
+  }
+
   function Question(
       address _author,
       string _questionText,
