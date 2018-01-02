@@ -152,6 +152,15 @@ contract('QuestionContractManager', (accounts) => {
       assert.equal(web3.eth.getBalance(result), defVals.bountyMaxValue);
     });
 
+    it('should increase the owners account balance by the tip amount', async () =>{
+      const new_question_contract_manager = await QuestionContractManager.new({from: accounts[0]});
+
+      const initialBalance = web3.eth.getBalance(accounts[0]);
+      await new_question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value, from: accounts[1]});
+      //check that the result contract balance is bounty maxValue
+      assert.deepEqual(web3.eth.getBalance(accounts[0]), initialBalance.plus(defVals.tip));
+    });
+
     it('should have Question isClosed as false', async () =>{
       await defVals.submitQuestionPromise();
       const result = await getCreatedQuestionContractAddress(question_contract_manager);
