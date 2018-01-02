@@ -101,7 +101,6 @@ contract('QuestionContractManager', (accounts) => {
 
     it('should return address to question contract', async () =>{
       const result = await defVals.submitQuestionPromise();
-      console.log(result);
       //check the result is a valid ethereum address
       assert.isOk(web3.isAddress(result), 'SubmitQuestion did not return valid ethereum address');
       const questionContract = Question.at(result);
