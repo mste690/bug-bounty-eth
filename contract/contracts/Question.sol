@@ -39,4 +39,9 @@ contract Question {
     isClosed = false;
   }
 
+  //fallback receiver function for receiving bounty
+  function() public payable {
+  
+  }
+
 }

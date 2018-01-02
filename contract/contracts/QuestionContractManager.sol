@@ -57,7 +57,12 @@ contract QuestionContractManager {
         bountyMinValue,
         bountyMaxValue,
         bountyTimeToMaxValue);
+
+    //send bounty to question contract
+    newQuestionContract.transfer(bountyMaxValue);
     questions.push(newQuestionContract);
+
+    //emit event
     QuestionSubmitted(newQuestionContract);
     return newQuestionContract;
   }

@@ -149,7 +149,6 @@ contract('QuestionContractManager', (accounts) => {
       await defVals.submitQuestionPromise();
       const result = await getCreatedQuestionContractAddress(question_contract_manager);
       //check that the result contract balance is bounty maxValue
-      console.log(web3.eth.getBalance(result));
       assert.equal(web3.eth.getBalance(result), defVals.bountyMaxValue);
     });
 
