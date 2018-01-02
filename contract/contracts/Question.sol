@@ -2,7 +2,7 @@ pragma solidity ^0.4.4;
 
 contract Question {
 
-  uint author;
+  address author;
   string questionText;
   bytes32[] tags;
   Bounty bounty;
@@ -16,7 +16,7 @@ contract Question {
   }
 
   function Question(
-      uint _author,
+      address _author,
       string _questionText,
       bytes32[] _tags,
       uint _submittedTime,
