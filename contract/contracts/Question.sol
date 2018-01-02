@@ -16,7 +16,7 @@ contract Question {
   }
 
   //Getter for tags
-  function getTags() public returns (bytes32[]) {
+  function getTags() public view returns (bytes32[]) {
     return tags;
   }
 
@@ -41,7 +41,7 @@ contract Question {
 
   //fallback receiver function for receiving bounty
   function() public payable {
-  
+
   }
 
 }

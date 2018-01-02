@@ -16,12 +16,12 @@ contract QuestionContractManager {
     address questionAddress
   );
 
-  function QuestionContractManager() {
+  function QuestionContractManager() public {
     owner = msg.sender;
   }
 
   //question getter
-  function getQuestions() public returns(address[]) {
+  function getQuestions() public view returns(address[]) {
     return questions;
   }
   
