@@ -31,7 +31,7 @@ contract('QuestionContractManager', (accounts) => {
     }
 
     it('should not fail with valid input', async () => {
-      const result = await defVals.submitQuestionPromise();
+      await defVals.submitQuestionPromise();
     });
 
     it('should fail if questionText is an empty string', async () =>{
@@ -142,42 +142,53 @@ contract('QuestionContractManager', (accounts) => {
     });
 
     it('should have Question address in managers questions array', async () =>{
-      const result = await defVals.submitQuestionPromise()
+      const result = await defVals.submitQuestionPromise();
       //check that result address is in questions
-      assert.isOk(question_contract_manager.questions.includes(result), 'questions array should contain new question address');
+      const questions = await question_contract_manager.getQuestions.call();
+      assert.isOk(questions.includes(result), 'questions array should contain new question address');
     });
 
     it('should have no questions for new contract manager', async () =>{
       const new_question_contract_manager = await QuestionContractManager.new();
-      assert.equal(new_question_contract_manager.questions.length, 0, 'New manager should have no questions');
+      const questions = await new_question_contract_manager.getQuestions.call();
+      assert.equal(questions.length, 0, 'New manager should have no questions');
     });
 
     it('should have single address in new manager after submit', async () =>{
       const new_question_contract_manager = await QuestionContractManager.new();
       const result = await new_question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value, from: accounts[0]});
+      
       //check that result address is in questions
-      assert.isOk(new_question_contract_manager.questions.includes(result), 'questions array should contain new question address');
-      assert.lengthOf(new_question_contract_manager.questions, 1, 'questions should contain 1 address');
+      const questions = await new_question_contract_manager.getQuestions.call();
+      assert.isOk(questions.includes(result), 'questions array should contain new question address');
+      assert.lengthOf(questions, 1, 'questions should contain 1 address');
     });
 
     it('should have two addresses in new manager after two submissions', async () =>{
       const new_question_contract_manager = await QuestionContractManager.new();
       const result = await new_question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value, from: accounts[0]});
+      
       //check that result address is in questions
-      assert.isOk(new_question_contract_manager.questions.includes(result), 'questions array should contain new question address');
-      assert.lengthOf(new_question_contract_manager.questions, 1, 'questions should contain 1 address');
+      let questions = await new_question_contract_manager.getQuestions.call();
+      assert.isOk(questions.includes(result), 'questions array should contain new question address');
+      assert.lengthOf(questions, 1, 'questions should contain 1 address');
 
       const result2 = await new_question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value, from: accounts[0]});
+      
       //check that second result address is in questions
-      assert.isOk(new_question_contract_manager.questions.includes(result2), 'questions array should contain new question address');
-      assert.lengthOf(new_question_contract_manager.questions, 2, 'questions should contain 2 addresses');
+      questions = await new_question_contract_manager.getQuestions.call();
+      assert.isOk(questions.includes(result2), 'questions array should contain new question address');
+      assert.lengthOf(questions, 2, 'questions should contain 2 addresses');
     });
 
     it('should have correct question data at stored address', async () =>{
       const new_question_contract_manager = await QuestionContractManager.new();
       await new_question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value, from: accounts[0]});
+      
       //check that stored address is in questions
-      const questionContract = Question.at(new_question_contract_manager.questions[0]);
+      const questions = await new_question_contract_manager.getQuestions.call();
+      const questionContract = Question.at(questions[0]);
+
       //check that the instantiated contract has a questiontext field that matches the input
       assert.equal(questionContract.questiontext, defVals.questionText);
       assert.equal(questionContract.tags, defVals.tags);
