@@ -8,6 +8,8 @@ contract QuestionContractManager {
   uint public constant MAX_TAGS = 10;
   uint public constant MAX_TAG_TEXT_LENGTH = 32;
 
+  address internal owner;
+
   address[] internal questions;
   
   event QuestionSubmitted (
@@ -15,7 +17,7 @@ contract QuestionContractManager {
   );
 
   function QuestionContractManager() {
-    //constructor
+    owner = msg.sender;
   }
 
   //question getter
@@ -60,6 +62,10 @@ contract QuestionContractManager {
 
     //send bounty to question contract
     newQuestionContract.transfer(bountyMaxValue);
+
+    //send tip to owner
+    owner.transfer(tip);
+
     questions.push(newQuestionContract);
 
     //emit event
