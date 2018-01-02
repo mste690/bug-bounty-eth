@@ -27,11 +27,11 @@ contract('QuestionContractManager', (accounts) => {
       bountyTimeToMaxValue: 24 * 60 * 60,
       tip: 20,
       value: 1020,
-      submitQuestionPromise:() => question_contract_manager.SubmitQuestion(questionText, tags, submittedTime, bountyMinValue, bountyMaxValue, bountyTimeToMaxValue, tip, { value })
+      submitQuestionPromise:() => question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, { value: defVals.value })
     }
 
     it('should not fail with valid input', async () => {
-      const result = await defVals.submitQuestionPromise;
+      const result = await defVals.submitQuestionPromise();
     });
 
     it('should fail if questionText is an empty string', async () =>{
@@ -100,7 +100,8 @@ contract('QuestionContractManager', (accounts) => {
     });
 
     it('should return address to question contract', async () =>{
-      const result = await defVals.submitQuestionPromise;
+      const result = await defVals.submitQuestionPromise();
+      console.log(result);
       //check the result is a valid ethereum address
       assert.isOk(web3.isAddress(result), 'SubmitQuestion did not return valid ethereum address');
       const questionContract = Question.at(result);
@@ -109,7 +110,7 @@ contract('QuestionContractManager', (accounts) => {
     });
 
     it('should create Question contract with correct inputs', async () =>{
-      const result = await defVals.submitQuestionPromise;
+      const result = await defVals.submitQuestionPromise();
       const questionContract = Question.at(result);
       //check that the instantiated contract has a questiontext field that matches the input
       assert.equal(questionContract.questiontext, defVals.questionText);
@@ -128,20 +129,20 @@ contract('QuestionContractManager', (accounts) => {
     });
 
     it('should have same Question contract balance as max bounty', async () =>{
-      const result = await defVals.submitQuestionPromise;
+      const result = await defVals.submitQuestionPromise();
       //check that the result contract balance is bounty maxValue
       assert.equal(web3.eth.getBalance(result), defVals.bountyMaxValue);
     });
 
     it('should have Question isClosed as false', async () =>{
-      const result = await defVals.submitQuestionPromise;
+      const result = await defVals.submitQuestionPromise();
       const questionContract = Question.at(result);
       //check that the author is the message sender
       assert.isFalse(questionContract.isClosed, 'Question isClosed should be false on submission');
     });
 
     it('should have Question address in managers questions array', async () =>{
-      const result = await defVals.submitQuestionPromise
+      const result = await defVals.submitQuestionPromise()
       //check that result address is in questions
       assert.isOk(question_contract_manager.questions.includes(result), 'questions array should contain new question address');
     });
