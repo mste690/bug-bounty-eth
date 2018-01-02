@@ -4,14 +4,19 @@ import "./Question.sol";
 
 contract QuestionContractManager {
 
-  uint constant MAX_QUESTION_TEXT_LENGTH = 2048;
-  uint constant MAX_TAGS = 10;
-  uint constant MAX_TAG_TEXT_LENGTH = 32;
+  uint public constant MAX_QUESTION_TEXT_LENGTH = 2048;
+  uint public constant MAX_TAGS = 10;
+  uint public constant MAX_TAG_TEXT_LENGTH = 32;
 
-  address[] questions;
+  address[] internal questions;
   
   function QuestionContractManager() {
     //constructor
+  }
+
+  //question getter
+  function getQuestions() public returns(address[]) {
+    return questions;
   }
   
   function SubmitQuestion(string questionText, bytes32[] tags, uint submittedTime, uint bountyMinValue, uint bountyMaxValue, uint bountyTimeToMaxValue, uint tip) public payable returns(address) { 
