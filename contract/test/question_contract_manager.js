@@ -77,10 +77,6 @@ contract('QuestionContractManager', (accounts) => {
       await expectTransactionToFail(question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMaxValue + 1, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value}));
     });
 
-    it('should fail if the bountyMinValue is equal to bountyMaxValue', async () =>{
-      await expectTransactionToFail(question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMaxValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value}));
-    });
-
     it('should fail if the value given to the contract is less than to the bountyMaxValue plus the tip', async () =>{
       await expectTransactionToFail(question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.bountyMaxValue + defVals.tip - 1}));
     });
