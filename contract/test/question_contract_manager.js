@@ -30,6 +30,19 @@ contract('QuestionContractManager', (accounts) => {
       submitQuestionPromise:() => question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, { value: defVals.value })
     }
 
+    getCreatedQuestionContractAddress = (contract) => new Promise((resolve, reject) => {
+      contract.QuestionSubmitted({}).get((error, logs) => {
+        if(error) {
+          reject(error);
+        }
+        lastLog = logs[logs.length-1];
+        resolve(lastLog.args.questionAddress);
+      });
+    });
+
+    mapTagBytesToStrings = (tagsAsBytes) => tagsAsBytes.map((bytes) => web3.toAscii(bytes)
+        .replace(/\0/g, ''));
+
     it('should not fail with valid input', async () => {
       await defVals.submitQuestionPromise();
     });
@@ -100,48 +113,57 @@ contract('QuestionContractManager', (accounts) => {
     });
 
     it('should return address to question contract', async () =>{
-      const result = await defVals.submitQuestionPromise();
+      await defVals.submitQuestionPromise();
+      const result = await getCreatedQuestionContractAddress(question_contract_manager);
       //check the result is a valid ethereum address
       assert.isOk(web3.isAddress(result), 'SubmitQuestion did not return valid ethereum address');
       const questionContract = Question.at(result);
       //check that the instantiated contract has a questiontext field that matches the input
-      assert.equal(questionContract.questiontext, defVals.questionText);
+      assert.equal(await questionContract.questionText.call(), defVals.questionText);
     });
 
     it('should create Question contract with correct inputs', async () =>{
-      const result = await defVals.submitQuestionPromise();
+      await defVals.submitQuestionPromise();
+      const result = await getCreatedQuestionContractAddress(question_contract_manager);
       const questionContract = Question.at(result);
       //check that the instantiated contract has a questiontext field that matches the input
-      assert.equal(questionContract.questiontext, defVals.questionText);
-      assert.equal(questionContract.tags, defVals.tags);
-      assert.equal(questionContract.submittedTime, defVals.submittedTime);
-      assert.equal(questionContract.bounty.minValue, defVals.bountyMinValue);
-      assert.equal(questionContract.bounty.maxValue, defVals.bountyMaxValue);
-      assert.equal(questionContract.bounty.timeToMaxValue, defVals.bountyTimeToMaxValue);
+
+      assert.equal(await questionContract.questionText.call(), defVals.questionText);
+      assert.deepEqual(mapTagBytesToStrings(await questionContract.getTags.call()), defVals.tags);
+      assert.equal(await questionContract.submittedTime.call(), defVals.submittedTime);
+      const bounty = await questionContract.bounty.call();
+      assert.equal(bounty[0], defVals.bountyMinValue);
+      assert.equal(bounty[1], defVals.bountyMaxValue);
+      assert.equal(bounty[2], defVals.bountyTimeToMaxValue);
     });
 
     it('should have Question author as message sender', async () =>{
-      const result = await question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value, from: accounts[0]});
+      await question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value, from: accounts[0]});
+      const result = await getCreatedQuestionContractAddress(question_contract_manager);
       const questionContract = Question.at(result);
       //check that the author is the message sender
-      assert.equal(questionContract.author, accounts[0]);
+      assert.equal(await questionContract.author.call(), accounts[0]);
     });
 
     it('should have same Question contract balance as max bounty', async () =>{
-      const result = await defVals.submitQuestionPromise();
+      await defVals.submitQuestionPromise();
+      const result = await getCreatedQuestionContractAddress(question_contract_manager);
       //check that the result contract balance is bounty maxValue
+      console.log(web3.eth.getBalance(result));
       assert.equal(web3.eth.getBalance(result), defVals.bountyMaxValue);
     });
 
     it('should have Question isClosed as false', async () =>{
-      const result = await defVals.submitQuestionPromise();
+      await defVals.submitQuestionPromise();
+      const result = await getCreatedQuestionContractAddress(question_contract_manager);
       const questionContract = Question.at(result);
       //check that the author is the message sender
-      assert.isFalse(questionContract.isClosed, 'Question isClosed should be false on submission');
+      assert.isFalse(await questionContract.isClosed.call(), 'Question isClosed should be false on submission');
     });
 
     it('should have Question address in managers questions array', async () =>{
-      const result = await defVals.submitQuestionPromise();
+      await defVals.submitQuestionPromise();
+      const result = await getCreatedQuestionContractAddress(question_contract_manager);
       //check that result address is in questions
       const questions = await question_contract_manager.getQuestions.call();
       assert.isOk(questions.includes(result), 'questions array should contain new question address');
@@ -155,7 +177,8 @@ contract('QuestionContractManager', (accounts) => {
 
     it('should have single address in new manager after submit', async () =>{
       const new_question_contract_manager = await QuestionContractManager.new();
-      const result = await new_question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value, from: accounts[0]});
+      await new_question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value, from: accounts[0]});
+      const result = await getCreatedQuestionContractAddress(new_question_contract_manager);
       
       //check that result address is in questions
       const questions = await new_question_contract_manager.getQuestions.call();
@@ -165,14 +188,16 @@ contract('QuestionContractManager', (accounts) => {
 
     it('should have two addresses in new manager after two submissions', async () =>{
       const new_question_contract_manager = await QuestionContractManager.new();
-      const result = await new_question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value, from: accounts[0]});
-      
+      await new_question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value, from: accounts[0]});
+      const result = await getCreatedQuestionContractAddress(new_question_contract_manager);
+
       //check that result address is in questions
       let questions = await new_question_contract_manager.getQuestions.call();
       assert.isOk(questions.includes(result), 'questions array should contain new question address');
       assert.lengthOf(questions, 1, 'questions should contain 1 address');
 
-      const result2 = await new_question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value, from: accounts[0]});
+      await new_question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value, from: accounts[0]});
+      const result2 = await getCreatedQuestionContractAddress(new_question_contract_manager);
       
       //check that second result address is in questions
       questions = await new_question_contract_manager.getQuestions.call();
@@ -189,12 +214,14 @@ contract('QuestionContractManager', (accounts) => {
       const questionContract = Question.at(questions[0]);
 
       //check that the instantiated contract has a questiontext field that matches the input
-      assert.equal(questionContract.questiontext, defVals.questionText);
-      assert.equal(questionContract.tags, defVals.tags);
-      assert.equal(questionContract.submittedTime, defVals.submittedTime);
-      assert.equal(questionContract.bounty.minValue, defVals.bountyMinValue);
-      assert.equal(questionContract.bounty.maxValue, defVals.bountyMaxValue);
-      assert.equal(questionContract.bounty.timeToMaxValue, defVals.bountyTimeToMaxValue);
+      assert.equal(await questionContract.questionText.call(), defVals.questionText);
+      assert.deepEqual(mapTagBytesToStrings(await questionContract.getTags.call()), defVals.tags);
+      assert.equal(await questionContract.submittedTime.call(), defVals.submittedTime);
+      
+      const bounty = await questionContract.bounty.call();
+      assert.equal(bounty[0], defVals.bountyMinValue);
+      assert.equal(bounty[1], defVals.bountyMaxValue);
+      assert.equal(bounty[2], defVals.bountyTimeToMaxValue);
     });
   }); 
 });
