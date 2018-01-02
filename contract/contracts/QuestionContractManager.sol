@@ -1,5 +1,7 @@
 pragma solidity ^0.4.4;
 
+import "./Question.sol";
+
 contract QuestionContractManager {
 
   uint constant MAX_QUESTION_TEXT_LENGTH = 2048;
@@ -37,5 +39,9 @@ contract QuestionContractManager {
     require(bountyTimeToMaxValue >= 0);
     require(bountyTimeToMaxValue <= 28 days);
     require(tip >= bountyMaxValue/100);
+
+    address newQuestionContract = new Question();
+    questions.push(newQuestionContract);
+    return newQuestionContract;
   }
 }
