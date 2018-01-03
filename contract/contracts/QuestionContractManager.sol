@@ -70,7 +70,7 @@ contract QuestionContractManager {
     );
 
     //send bounty to question contract
-    newQuestionContract.transfer(bountyMaxValue);
+    Question(newQuestionContract).giveBounty.value(bountyMaxValue)();
 
     //send tip to owner
     owner.transfer(tip);

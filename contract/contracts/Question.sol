@@ -39,9 +39,9 @@ contract Question {
     isClosed = false;
   }
 
-  //fallback receiver function for receiving bounty
-  function() public payable {
-
+  //receiver function for receiving bounty
+  function giveBounty() public payable {
+    require(this.balance == bounty.maxValue);
   }
 
 }
