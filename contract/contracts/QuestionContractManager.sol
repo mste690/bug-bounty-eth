@@ -25,12 +25,20 @@ contract QuestionContractManager {
     return questions;
   }
   
-  function SubmitQuestion(string questionText, bytes32[] tags, uint submittedTime, uint bountyMinValue, uint bountyMaxValue, uint bountyTimeToMaxValue, uint tip) public payable returns(address) { 
+  function SubmitQuestion(
+      string questionText,
+      bytes32[] tags,
+      uint submittedTime,
+      uint bountyMinValue, 
+      uint bountyMaxValue,
+      uint bountyTimeToMaxValue,
+      uint tip
+  ) public payable returns(address) { 
     require(bytes(questionText).length > 0);
     require(bytes(questionText).length <= MAX_QUESTION_TEXT_LENGTH);
-    require(tags.length < MAX_TAGS);
+    require(tags.length <= MAX_TAGS);
 
-    bytes32[] memory seenTags = new bytes32[](10);
+    bytes32[] memory seenTags = new bytes32[](MAX_TAGS);
     for (uint i = 0; i < tags.length; i++) {
       uint tagLength = tags[i].length;
       require(tagLength > 0);
@@ -58,7 +66,8 @@ contract QuestionContractManager {
         submittedTime,
         bountyMinValue,
         bountyMaxValue,
-        bountyTimeToMaxValue);
+        bountyTimeToMaxValue
+    );
 
     //send bounty to question contract
     newQuestionContract.transfer(bountyMaxValue);
