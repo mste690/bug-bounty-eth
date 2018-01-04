@@ -30,12 +30,17 @@ contract('QuestionContractManager', (accounts) => {
       submitQuestionPromise:() => question_contract_manager.SubmitQuestion(defVals.questionText, defVals.tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, { value: defVals.value })
     }
 
-    getCreatedQuestionContractAddress = (contract) => new Promise((resolve, reject) => {
-      contract.QuestionSubmitted({}).get((error, logs) => {
+    getCreatedQuestionContractAddress = (qcmContractInstance) => new Promise((resolve, reject) => {
+      //Get logs for QuestionSubmitted event for the question contract manager instance
+      qcmContractInstance.QuestionSubmitted({}).get((error, logs) => {
         if(error) {
           reject(error);
         }
+
+        //we only want the latest event
         lastLog = logs[logs.length-1];
+
+        //return the address of the question contract created
         resolve(lastLog.args.questionAddress);
       });
     });
