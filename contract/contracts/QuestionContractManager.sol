@@ -33,7 +33,7 @@ contract QuestionContractManager {
       uint bountyMaxValue,
       uint bountyTimeToMaxValue,
       uint tip
-  ) public payable returns(address) { 
+  ) public payable { 
     require(bytes(questionText).length > 0);
     require(bytes(questionText).length <= MAX_QUESTION_TEXT_LENGTH);
     require(tags.length <= MAX_TAGS);
@@ -79,6 +79,5 @@ contract QuestionContractManager {
 
     //emit event
     QuestionSubmitted(newQuestionContract);
-    return newQuestionContract;
   }
 }
