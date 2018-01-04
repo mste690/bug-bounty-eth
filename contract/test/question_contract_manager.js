@@ -64,6 +64,16 @@ contract('QuestionContractManager', (accounts) => {
       await expectTransactionToFail(question_contract_manager.SubmitQuestion(defVals.questionText, ['tag1', ''], defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value}));
     });
 
+    it('should not fail if the list of tags contains exactly the maximum number of allowed tags', async () =>{
+      const MAX_TAGS = 10;
+      let tags = [];
+      for (let i = 0; i < MAX_TAGS; i++) {
+        tags.push(`tag ${i}`);
+      }
+
+      await question_contract_manager.SubmitQuestion(defVals.questionText, tags, defVals.submittedTime, defVals.bountyMinValue, defVals.bountyMaxValue, defVals.bountyTimeToMaxValue, defVals.tip, {value: defVals.value});
+    });
+
     it('should fail if the list of tags contains more than the maximum number of allowed tags', async () =>{
       const MAX_TAGS = 10;
       let tags = [];
